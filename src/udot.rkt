@@ -349,4 +349,4 @@
   (list convert-result verify-result all-match?))
 
 ;; 直接执行
-(run-all)
+; (run-all)
