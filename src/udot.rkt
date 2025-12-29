@@ -235,12 +235,18 @@
 
 ;; 使用 objdump 验证编码正确性
 ;; 参数: asm-path - 汇编文件路径
+;;       build-dir - 编译输出目录 (可选，默认 "../build")
 ;; 返回: (list passed-count failed-count failures)
-(define (verify-with-objdump asm-path)
+(define (verify-with-objdump asm-path [build-dir "../build"])
   (printf "~n=== 使用 objdump 验证编码正确性 ===~n~n")
 
+  ;; 确保 build 目录存在
+  (unless (directory-exists? build-dir)
+    (make-directory build-dir))
+
   ;; 1. 用系统汇编器编译
-  (define obj-path (string-append (path->string (path-replace-extension asm-path "")) ".o"))
+  (define base-name (path->string (file-name-from-path (path-replace-extension asm-path ""))))
+  (define obj-path (build-path build-dir (string-append base-name ".o")))
   (define compile-result
     (with-output-to-string
       (lambda ()
@@ -335,5 +341,6 @@
     (printf "~n"))
 
   ;; 使用 objdump 验证
-  (when (file-exists? "verify.s")
-    (verify-with-objdump "verify.s")))
+  (define test-asm "../test/verify.s")
+  (when (file-exists? test-asm)
+    (verify-with-objdump test-asm)))
